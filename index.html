@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lab Project</title>
+
+<style>
+body{
+    background:#0d0d0d;
+    color:#fff;
+    font-family: monospace;
+    padding:20px;
+}
+
+/* 🔷 HEADER */
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
+.header h1{
+    color:#00ffff;
+    margin-bottom:5px;
+}
+.header p{
+    margin:2px;
+    font-size:14px;
+    color:#ccc;
+}
+
+/* 🔷 PANELS LAYOUT */
+.container{
+    display:flex;
+    gap:20px;
+}
+
+.panel{
+    width:50%;
+    padding:20px;
+    border-radius:10px;
+}
+
+.bad{ border:2px solid red; background:#2a0000; }
+.good{ border:2px solid lime; background:#002a00; }
+
+input,button{
+    width:95%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+    border:none;
+}
+
+.output{
+    background:black;
+    margin-top:15px;
+    padding:10px;
+    min-height:80px;
+    white-space:pre-wrap;
+    word-break: break-all;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔷 HEADER -->
+<div class="header">
+    <h1> SSDD Lab Project</h1>
+    <h2><b>Developed By:</b> Shahzad Ali  (CSEC241102078)</h2>
+    <h2><b>Developed For:</b> Sir Abdul Wahab</h2>
+</div>
+
+<!-- 🔷 MAIN PANELS -->
+<div class="container">
+
+    <!-- ❌ Vulnerable -->
+    <div class="panel bad">
+        <h2>❌ Vulnerable Website</h2>
+        <p>Example : &lt;script&gt;alert("Hey Dear!!!")&lt;/script&gt;</p>
+
+
+        <input id="vulnInput" value=''>
+        <button onclick="runVulnerable()">Post</button>
+
+        <div class="output" id="vulnOut"></div>
+    </div>
+
+    <!-- ✅ Secure -->
+    <div class="panel good">
+        <h2>✅ Secure Website (Crypto Protected)</h2>
+        <p>Input will be encoded + SHA‑256 hashed</p>
+
+        <input id="safeInput" value=''>
+        <button onclick="runSecure()">Post</button>
+
+        <div class="output" id="safeOut"></div>
+    </div>
+
+</div>
+
+<script>
+
+// ❌ Vulnerable
+function runVulnerable(){
+    let payload = document.getElementById("vulnInput").value;
+    let container = document.getElementById("vulnOut");
+
+    container.innerHTML = payload;
+
+    let scripts = container.getElementsByTagName("script");
+    for (let i = 0; i < scripts.length; i++) {
+        eval(scripts[i].innerText); // demo only
+    }
+}
+
+// 🔐 Secure
+async function runSecure(){
+    let data = document.getElementById("safeInput").value;
+
+    let encoded = data
+        .replaceAll("&","&!#^;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&!^*!;")
+        .replaceAll("'","&#039;");
+
+    const enc = new TextEncoder();
+    const buf = enc.encode(data);
+    const hashBuf = await crypto.subtle.digest("SHA-256", buf);
+
+    const hashArr = Array.from(new Uint8Array(hashBuf));
+    const hashHex = hashArr.map(b => b.toString(16).padStart(2,"0")).join("");
+
+    document.getElementById("safeOut").textContent =
+        "Encoded:\n" + encoded + "\n\nSHA-256:\n" + hashHex;
+}
+
+</script>
+
+</body>
+</html>
